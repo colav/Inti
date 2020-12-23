@@ -9,6 +9,39 @@ import psutil
 
 from inti.MA.MAMagExecutor import MAMagExecutor
 
+MAMagColNames = {}
+MAMagColNames['Authors'] = ['AuthorId', 'Rank', 'NormalizedName', 'DisplayName', 'LastKnownAffiliationId', 'PaperCount', 'PaperFamilyCount', 'CitationCount', 'CreatedDate']
+MAMagColNames['Authors_indexes'] = ['AuthorId','LastKnownAffiliationId']
+
+MAMagColNames['Affiliations'] = ['AffiliationId', 'Rank', 'NormalizedName', 'DisplayName', 'GridId', 'OfficialPage', 'WikiPage', 'PaperCount', 'PaperFamilyCount', 'CitationCount', 'Latitude', 'Longitude', 'CreatedDate']
+MAMagColNames['Affiliations_indexes'] = ['AffiliationId','GridId']
+
+MAMagColNames['PaperAuthorAffiliations'] = ['PaperId', 'AuthorId', 'AffiliationId', 'AuthorSequenceNumber', 'OriginalAuthor', 'OriginalAffiliation']
+MAMagColNames['PaperAuthorAffiliations_indexes'] = ['PaperId','AuthorId','AffiliationId'] 
+
+MAMagColNames['Papers'] = ['PaperId', 'Rank', 'Doi', 'DocType', 'PaperTitle', 'OriginalTitle', 'BookTitle', 'Year', 'Date', 'Publisher', 'JournalId', 'ConferenceSeriesId', 'ConferenceInstanceId', 'Volume', 'Issue', 'FirstPage', 'LastPage', 'ReferenceCount', 'CitationCount', 'EstimatedCitation', 'OriginalVenue', 'FamilyId', 'CreatedDate']
+MAMagColNames['Papers_indexes'] = ['PaperId','JournalId','ConferenceSeriesId','ConferenceInstanceId','FamilyId']
+
+MAMagColNames['PaperUrls'] = ['PaperId', 'SourceType', 'SourceUrl', 'LanguageCode']
+MAMagColNames['PaperUrls_indexes'] = ['PaperId']
+
+MAMagColNames['PaperResources'] = ['PaperId', 'ResourceType', 'ResourceUrl', 'SourceUrl', 'RelationshipType']
+MAMagColNames['PaperResources_indexes'] = ['PaperId']
+
+MAMagColNames['PaperReferences'] = ['PaperId', 'PaperReferenceId']
+MAMagColNames['PaperReferences_indexes'] = ['PaperId', 'PaperReferenceId']
+
+MAMagColNames['PaperExtendedAttributes'] = ['PaperId', 'AttributeType', 'AttributeValue']
+MAMagColNames['PaperExtendedAttributes_indexes'] = ['PaperId']
+
+MAMagColNames['Journals'] = ['JournalId', 'Rank', 'NormalizedName', 'DisplayName', 'Issn', 'Publisher', 'Webpage', 'PaperCount', 'PaperFamilyCount', 'CitationCount', 'CreatedDate']
+MAMagColNames['Journals_indexes'] = ['JournalId']
+
+MAMagColNames['ConferenceSeries'] = ['ConferenceSeriesId', 'Rank', 'NormalizedName', 'DisplayName', 'PaperCount', 'PaperFamilyCount', 'CitationCount', 'CreatedDate']
+MAMagColNames['ConferenceSeries_indexes'] = ['ConferenceSeriesId']
+
+MAMagColNames['ConferenceInstances'] = ['ConferenceInstanceId', 'NormalizedName', 'DisplayName', 'ConferenceSeriesId', 'Location', 'OfficialUrl', 'StartDate', 'EndDate', 'AbstractRegistrationDate', 'SubmissionDeadlineDate', 'NotificationDueDate', 'FinalVersionDueDate', 'PaperCount', 'PaperFamilyCount', 'CitationCount', 'Latitude', 'Longitude', 'CreatedDate']
+MAMagColNames['ConferenceInstances_indexes'] = ['ConferenceInstanceId','ConferenceSeriesId']
 
 class MAMagBase:
     def __init__(self,file_name,database_name,collection,col_names,col_indexes,sep='\t', buffer_size=1024*1024, dburi='mongodb://localhost:27017/', hunabku_server = None, hunabku_apikey = None,
@@ -21,10 +54,8 @@ class MAMagBase:
         self.log_file = log_file
         self.logger = logging.getLogger(__name__)
         self.set_info_level(info_level)
-        self.client = MongoClient()
-        self.db = self.client[database_name]
-        self.collection = self.db[collection]
-        
+        self.database_name = database_name
+        self.collection = collection
         self.col_names = col_names
         self.col_indexes = col_indexes
         self.sep = sep
@@ -79,4 +110,8 @@ class MAMagBase:
                     break
 
     def run(self,max_threads=None):
+        self.client = MongoClient()
+        self.db = self.client[self.database_name]
+        self.collection = self.db[self.collection]
         MAMagExecutor(self,max_threads=max_threads)
+        self.client.close()
