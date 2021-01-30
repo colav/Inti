@@ -9,6 +9,7 @@ import psutil
 
 from inti.MA.MAMagExecutor import MAMagExecutor
 
+
 MAMagColNames = {}
 MAMagColNames['Authors'] = ['AuthorId', 'Rank', 'NormalizedName', 'DisplayName', 'LastKnownAffiliationId', 'PaperCount', 'PaperFamilyCount', 'CitationCount', 'CreatedDate']
 MAMagColNames['Authors_indexes'] = ['AuthorId','LastKnownAffiliationId']
@@ -70,15 +71,11 @@ class MAMagBase:
         if len(fields) == len(self.col_names):
             for index in range(len(self.col_names)):
                 register[self.col_names[index]]=fields[index]
-            self.collection.insert_one(register)
+            return register
+            #self.collection.insert_one(register)
         else:
             print(line)
             pass
-
-    def create_indexes(self):
-        print('Creating indexes '+self.col_indexes)
-        for index in self.col_indexes:
-            self.collection.create_index(index)
 
     def set_info_level(self, info_level):
         '''
@@ -93,9 +90,12 @@ class MAMagBase:
             f.seek(chunkStart)
             lines = f.read(chunkSize).decode('utf-8').split('\r\n')
             self.logger.info("Chunk lines = "+str(len(lines)))
+            processed_lines = []
             for line in lines:
-                self.process(line)
-
+                line = self.process(line)
+                if line is not None:
+                    processed_lines.append(line)
+            self.collection.insert_many(processed_lines,ordered=False)
     def chunkify(self):
         fileEnd = os.path.getsize(self.file_name)
         with open(self.file_name,'rb') as f:
