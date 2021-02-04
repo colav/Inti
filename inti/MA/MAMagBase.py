@@ -60,6 +60,7 @@ class MAMagBase:
         self.col_names = col_names
         self.col_indexes = col_indexes
         self.sep = sep
+        self.dburi = dburi
 
 
     def process(self,line):
@@ -110,7 +111,7 @@ class MAMagBase:
                     break
 
     def run(self,max_threads=None):
-        self.client = MongoClient()
+        self.client = MongoClient(self.dburi)
         self.db = self.client[self.database_name]
         self.collection = self.db[self.collection]
         MAMagExecutor(self,max_threads=max_threads)

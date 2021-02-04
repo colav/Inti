@@ -39,7 +39,7 @@ class MAMagLoader:
         self.info_level = info_level
     
     def create_index(self,collection,index):
-        self.client = MongoClient()
+        self.client = MongoClient(self.dburi)
         self.db = self.client[self.database_name]
         self.collection = self.db[collection]
         print('Creating index {} = {}'.format(collection,index))
