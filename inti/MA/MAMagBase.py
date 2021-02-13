@@ -6,9 +6,46 @@ import os,sys
 import logging
 import multiprocessing as mp
 import psutil
+import bson
 
 from inti.MA.MAMagExecutor import MAMagExecutor
 
+MAMagColTypeLong = ['EstimatedCitation',
+ 'JournalId',
+ 'FieldOfStudyId2',
+ 'AffiliationId',
+ 'RecommendedPaperId',
+ 'ConferenceInstanceId',
+ 'ChildFieldOfStudyId',
+ 'PaperFamilyCount',
+ 'AuthorId',
+ 'PaperCount',
+ 'FamilyId',
+ 'PaperId',
+ 'EntityId',
+ 'PaperReferenceId',
+ 'FieldOfStudyId',
+ 'ReferenceCount',
+ 'ConferenceSeriesId',
+ 'RelatedEntityId',
+ 'FieldOfStudyId1',
+ 'LastKnownAffiliationId',
+ 'CitationCount']
+
+MAMagColTypeInt = ['AuthorSequenceNumber',
+ 'Rank',
+ 'RelationshipType',
+ 'Year',
+ 'ResourceType',
+ 'FamilyRank',
+ 'AttributeType',
+ 'RelatedType',
+ 'SourceType']
+
+MAMagColTypeFloat = ['Latitude',
+'Longitude',
+'Score',
+'Rank']
 
 MAMagColNames = {}
 MAMagColNames['Authors'] = ['AuthorId', 'Rank', 'NormalizedName', 'DisplayName', 'LastKnownAffiliationId', 'PaperCount', 'PaperFamilyCount', 'CitationCount', 'CreatedDate']
@@ -56,22 +93,42 @@ class MAMagBase:
         self.logger = logging.getLogger(__name__)
         self.set_info_level(info_level)
         self.database_name = database_name
-        self.collection = collection
+        self.collection = None
+        self.collection_name = collection
         self.col_names = col_names
         self.col_indexes = col_indexes
         self.sep = sep
         self.dburi = dburi
-
 
     def process(self,line):
         register={}
         if type(line) == type(bytes()):
             line = line.decode('utf-8')
         fields = line.split(self.sep)
-        #print(len(fields),len(self.col_names))
         if len(fields) == len(self.col_names):
             for index in range(len(self.col_names)):
-                register[self.col_names[index]]=fields[index]
+                col_name = self.col_names[index]
+                if col_name in MAMagColTypeLong:
+                    value = fields[index].strip()
+                    if value == "":
+                        value=0                        
+                    register[col_name]=bson.int64.Int64(value)
+                    print(register[col_name])
+                elif col_name == "Rank" and self.collection_name == "RelatedFieldOfStudy":#the only exception
+                    if value == "":
+                        value=0.0                        
+                    register[col_name]=float(value)
+                elif col_name in MAMagColTypeInt:
+                    if value == "":
+                        value=0                        
+                    register[col_name]=bson.int64.Int64(value)
+                elif col_name in MAMagColTypeFloat:
+                    if value == "":
+                        value=0.0                        
+                    register[col_name]=float(value)
+                else:
+                    register[self.col_names[index]]=fields[index]
+                
             return register
             #self.collection.insert_one(register)
         else:
@@ -90,7 +147,7 @@ class MAMagBase:
         with open(self.file_name,'rb') as f:
             f.seek(chunkStart)
             lines = f.read(chunkSize).decode('utf-8').split('\r\n')
-            self.logger.info("Chunk lines = "+str(len(lines)))
+            #self.logger.info("Chunk lines = "+str(len(lines)))
             processed_lines = []
             for line in lines:
                 line = self.process(line)
@@ -113,6 +170,6 @@ class MAMagBase:
     def run(self,max_threads=None):
         self.client = MongoClient(self.dburi)
         self.db = self.client[self.database_name]
-        self.collection = self.db[self.collection]
+        self.collection = self.db[self.collection_name]
         MAMagExecutor(self,max_threads=max_threads)
         self.client.close()
