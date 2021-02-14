@@ -37,8 +37,8 @@ def MAMagExecutor(obj,max_threads=None):
     for chunkStart,chunkSize in obj.chunkify():
         jobs.append(pool.apply_async(process_wrapper,[chunkStart,chunkSize]) )
         counter=counter+1
-        if counter%10==0:
-            print(counter)
+        #if counter%10==0:
+        #    print(counter)
 
     #wait for all jobs to finish
     for job in jobs:

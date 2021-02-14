@@ -113,7 +113,6 @@ class MAMagBase:
                     if value == "":
                         value=0                        
                     register[col_name]=bson.int64.Int64(value)
-                    print(register[col_name])
                 elif col_name == "Rank" and self.collection_name == "RelatedFieldOfStudy":#the only exception
                     if value == "":
                         value=0.0                        
@@ -132,7 +131,7 @@ class MAMagBase:
             return register
             #self.collection.insert_one(register)
         else:
-            print(line)
+            #print(line)
             pass
 
     def set_info_level(self, info_level):
