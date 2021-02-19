@@ -7,6 +7,10 @@ Capture system from non scrapping data sources
 `
 python3 run_mamagloader.py --mag_dir=/storage/colav/mag_sample/ --db=MA
 `
+# Exaple running save MAG in ElasticSearch
+`
+ python3 run_maesloader.py --mag_dir=/home/colav/mag/ --col_name=Papers --field_name=PaperTitle --index_name=mag 
+`
 
 # DB Options requirement
 There is a special requirement for mongodb server to allow run multithread sessions

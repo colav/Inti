@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+from inti.MA.MAESLoader import MAESLoader
+from inti.MA.MAMagBase import MAMagColNames
+from elasticsearch import Elasticsearch
+
+import argparse
+import logging
+
+parser = argparse.ArgumentParser(description='Process papers with GSLookUp.')
+parser.add_argument('--max_threads', type=int,default=None, help='an integer for number of threads')
+parser.add_argument('--mag_dir',required=True, type=str, help='MAG directory with the txt files wiht the data (ex: /storage/MA/mag)')
+parser.add_argument('--col_name',required=True, type=str, help='MAG collection name ex: Papers, Authors etc..')
+parser.add_argument('--field_name',required=True, type=str, help='MAG column name to create the index')
+parser.add_argument('--index_name',default="mag", type=str, help='Name of the index for ES, default mag')
+parser.add_argument('--reset_index',action='store_true', help='reset the index if exists')
+parser.add_argument('--buffer_size',default=1024*1024, type=int, help='Size of the buffer to read the txt file, default 1024*1024')
+parser.add_argument('--debug', action='store_true', help='Produces a lot of output messages for debug')
+parser.add_argument('--db_ip', type=str, default='localhost',
+                    help='ES ip (default localhost)')
+parser.add_argument('--db_port', type=int, default=9200,
+                    help='ES port (default 9200)')
+parser.add_argument('--timeout', type=int, default=120,
+                    help='ES timeout in request (default 120)')
+
+args = parser.parse_args()
+
+level=logging.INFO
+if args.debug:
+    level=logging.DEBUG
+
+
+mag_dir = args.mag_dir
+col_name= args.col_name
+index_name = args.index_name
+field_name = args.field_name
+buffer_size = args.buffer_size
+db_ip = args.db_ip
+db_port = args.db_port
+timeout = args.timeout
+max_threads = args.max_threads
+
+mag_file = mag_dir+'/{}.txt'.format(col_name)
+col_names = MAMagColNames[col_name]
+
+es = Elasticsearch(HOST=db_ip, PORT=db_port,timeout=timeout)
+if args.reset_index:
+    if es.indices.exists(index=index_name):
+        print("Deleting index "+index_name)
+        es.indices.delete(index=index_name)
+
+if not es.indices.exists(index=index_name):
+    es.indices.create(index=index_name)
+
+logging.warning("--------------------------------------------------------\n")
+logging.warning("Starting MA MAG Loader ")
+loader = MAESLoader(mag_file,index_name,field_name,col_names,'\t', buffer_size, db_ip,db_port,timeout)
+loader.run(max_threads=max_threads)
+
+loader.run(max_threads=args.max_threads)
+logging.warning("MA MAG Loader finished! ")
+logging.warning("--------------------------------------------------------\n")
