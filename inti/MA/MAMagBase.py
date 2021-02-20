@@ -143,6 +143,10 @@ class MAMagBase:
         self.info_level = info_level
 
     def process_wrapper(self,chunkStart, chunkSize):
+        self.client = MongoClient(self.dburi)
+        self.db = self.client[self.database_name]
+        self.collection = self.db[self.collection_name]
+
         with open(self.file_name,'rb') as f:
             f.seek(chunkStart)
             lines = f.read(chunkSize).decode('utf-8').split('\r\n')
@@ -153,6 +157,8 @@ class MAMagBase:
                 if line is not None:
                     processed_lines.append(line)
             self.collection.insert_many(processed_lines,ordered=False)
+        self.client.close()
+
     def chunkify(self):
         fileEnd = os.path.getsize(self.file_name)
         with open(self.file_name,'rb') as f:
@@ -167,8 +173,4 @@ class MAMagBase:
                     break
 
     def run(self,max_threads=None):
-        self.client = MongoClient(self.dburi)
-        self.db = self.client[self.database_name]
-        self.collection = self.db[self.collection_name]
         MAMagExecutor(self,max_threads=max_threads)
-        self.client.close()

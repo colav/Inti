@@ -52,6 +52,8 @@ def main():
         # Details
         url="https://github.com/colav/Inti",
 
+        scripts=['bin/inti_maesloader', 'bin/inti_mamagloader','bin/inti_elastic_docker'],
+
         #
         license="BSD",
 

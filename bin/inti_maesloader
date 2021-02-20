@@ -55,7 +55,5 @@ logging.warning("--------------------------------------------------------\n")
 logging.warning("Starting MA MAG Loader ")
 loader = MAESLoader(mag_file,index_name,field_name,col_names,'\t', buffer_size, db_ip,db_port,timeout)
 loader.run(max_threads=max_threads)
-
-loader.run(max_threads=args.max_threads)
 logging.warning("MA MAG Loader finished! ")
 logging.warning("--------------------------------------------------------\n")
