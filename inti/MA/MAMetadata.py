@@ -39,8 +39,12 @@ MAColTypes['mag']['float'] = ['Latitude',
 'Rank']
 
 MAColTypes['nlp'] = {}
-MAColTypes['nlp']['long'] = ['PaperId',"PaperReferenceId"]
+MAColTypes['nlp']['long'] = ['PaperId','PaperReferenceId']
 
+MAColTypes['advanced'] = {}
+MAColTypes['advanced']['long'] = ['EntityId','RelatedEntityId','FieldOfStudyId','ChildFieldOfStudyId','PaperCount','PaperFamilyCount','CitationCount','PaperId','RecommendedPaperId','FieldOfStudyId1','FieldOfStudyId2']
+MAColTypes['advanced']['int'] = ['RelatedType','AttributeType','Rank','Level']
+MAColTypes['advanced']['float'] = ['Score']
 
 MAColumnNames = {}
 MAColumnNames['mag'] = {}
@@ -83,7 +87,24 @@ MAColumnNames['nlp']['PaperAbstractsInvertedIndex'] = ['PaperId','IndexedAbstrac
 MAColumnNames['nlp']['PaperAbstractsInvertedIndex_indexes'] = ['PaperId']
 MAColumnNames['nlp']['PaperCitationContexts'] = ['PaperId','PaperReferenceId','CitationContext']
 MAColumnNames['nlp']['PaperCitationContexts_indexes'] = ['PaperId','PaperReferenceId']
-MACollectionNames = {}
 
+MAColumnNames['advanced'] = {}
+MAColumnNames['advanced']['EntityRelatedEntities'] = ['EntityId','EntityType','RelatedEntityId','RelatedEntityType','RelatedType','Score']
+MAColumnNames['advanced']['EntityRelatedEntities_indexes'] = ['EntityId','RelatedEntityId']
+MAColumnNames['advanced']['FieldOfStudyChildren'] = ['FieldOfStudyId','ChildFieldOfStudyId']
+MAColumnNames['advanced']['FieldOfStudyChildren_indexes'] = ['FieldOfStudyId','ChildFieldOfStudyId']
+MAColumnNames['advanced']['FieldOfStudyExtendedAttributes'] = ['FieldOfStudyId','AttributeType','AttributeValue']
+MAColumnNames['advanced']['FieldOfStudyExtendedAttributes_indexes'] = ['FieldOfStudyId']
+MAColumnNames['advanced']['FieldsOfStudy'] = ['FieldOfStudyId','Rank','NormalizedName','DisplayName','MainType','Level','PaperCount','PaperFamilyCount','CitationCount','CreatedDate']
+MAColumnNames['advanced']['FieldsOfStudy_indexes'] = ['FieldOfStudyId']
+MAColumnNames['advanced']['PaperFieldsOfStudy'] = ['PaperId','FieldOfStudyId','Score']
+MAColumnNames['advanced']['PaperFieldsOfStudy_indexes'] = ['PaperId','FieldOfStudyId']
+MAColumnNames['advanced']['PaperRecommendations'] = ['PaperId','RecommendedPaperId','Score']
+MAColumnNames['advanced']['PaperRecommendations_indexes'] = ['PaperId','RecommendedPaperId']
+MAColumnNames['advanced']['RelatedFieldOfStudy'] = ['FieldOfStudyId1','Type1','FieldOfStudyId2','Type2','Rank']
+MAColumnNames['advanced']['RelatedFieldOfStudy_indexes'] = ['FieldOfStudyId1','FieldOfStudyId2']
+
+MACollectionNames = {}
 MACollectionNames['mag'] = ['Authors','Affiliations','PaperAuthorAffiliations','Papers','PaperUrls','PaperResources','PaperReferences','PaperExtendedAttributes','Journals','ConferenceSeries','ConferenceInstances']
 MACollectionNames['nlp'] = ['PaperAbstractsInvertedIndex','PaperCitationContexts']
+MACollectionNames['advanced'] = ['EntityRelatedEntities','FieldOfStudyChildren','FieldOfStudyExtendedAttributes','FieldsOfStudy','PaperFieldsOfStudy','PaperRecommendations','RelatedFieldOfStudy'] 
