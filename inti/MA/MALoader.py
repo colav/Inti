@@ -2,6 +2,7 @@
 
 from inti.MA.MAMag import MAMag
 from inti.MA.MANlp import MANlp
+from inti.MA.MAAdvanced import MAAdvanced
 
 from pymongo import MongoClient
 import psutil
@@ -29,12 +30,15 @@ class MALoader:
         """
         Subfolder can be mag,nlp or advanced
         """
-        if sub_folder not in ["mag","nlp"]:
-            print("Error: sub_folder should be mag or nlp")
+        if sub_folder not in ["mag","nlp","advanced"]:
+            print("Error: sub_folder should be mag, nlp or advanced")
             sys.exit(1) 
         if sub_folder == "mag":
             mag = MAMag(self.ma_dir,self.database_name,self.sep,self.buffer_size,self.dburi,self.log_file,self.info_level)
             mag.run(max_threads)
         if sub_folder == "nlp":
             mag = MANlp(self.ma_dir,self.database_name,self.sep,self.buffer_size,self.dburi,self.log_file,self.info_level)
-            mag.run(max_threads)        
+            mag.run(max_threads)
+        if sub_folder == "advanced":
+            mag = MAAdvanced(self.ma_dir,self.database_name,self.sep,self.buffer_size,self.dburi,self.log_file,self.info_level)
+            mag.run(max_threads)
