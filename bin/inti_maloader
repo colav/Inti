@@ -37,5 +37,7 @@ logging.warning("Starting MA Loader ")
 #else:
 if args.mag:
     loader.run("mag",max_threads=args.max_threads)
+if args.nlp:
+    loader.run("nlp",max_threads=args.max_threads)
 logging.warning("MA Loader finished! ")
 logging.warning("--------------------------------------------------------\n")

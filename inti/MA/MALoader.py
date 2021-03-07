@@ -1,6 +1,7 @@
 
 
 from inti.MA.MAMag import MAMag
+from inti.MA.MANlp import MANlp
 
 from pymongo import MongoClient
 import psutil
@@ -34,3 +35,6 @@ class MALoader:
         if sub_folder == "mag":
             mag = MAMag(self.ma_dir,self.database_name,self.sep,self.buffer_size,self.dburi,self.log_file,self.info_level)
             mag.run(max_threads)
+        if sub_folder == "nlp":
+            mag = MANlp(self.ma_dir,self.database_name,self.sep,self.buffer_size,self.dburi,self.log_file,self.info_level)
+            mag.run(max_threads)        
