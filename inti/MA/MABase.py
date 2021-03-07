@@ -65,7 +65,6 @@ class MABase:
         with open(file_name,'rb') as f:
             f.seek(chunkStart)
             lines = f.read(chunkSize).decode('utf-8').split('\r\n')
-            #self.logger.info("Chunk lines = "+str(len(lines)))
             processed_lines = []
             for line in lines:
                 line = self.process(collection_name,line)

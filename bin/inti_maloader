@@ -35,12 +35,16 @@ logging.warning("Starting MA Loader ")
 #if args.create_indexes:
     #loader.create_indexes(max_threads=args.max_threads)
 #else:
-if args.mag:
-    loader.run("mag",max_threads=args.max_threads)
-if args.nlp:
-    loader.run("nlp",max_threads=args.max_threads)
-if args.advanced:
-    loader.run("advanced",max_threads=args.max_threads)
+use_all=False
+if args.all:
+    use_all=True
+
+if args.mag or use_all:
+    loader.run("mag",create_indexes=args.create_indexes,max_threads=args.max_threads)
+if args.nlp or use_all:
+    loader.run("nlp",create_indexes=args.create_indexes,max_threads=args.max_threads)
+if args.advanced or use_all:
+    loader.run("advanced",create_indexes=args.create_indexes,max_threads=args.max_threads)
 
 logging.warning("MA Loader finished! ")
 logging.warning("--------------------------------------------------------\n")
