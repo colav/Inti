@@ -4,21 +4,21 @@ import psutil
 
 
 ma_obj = None
-def process_wrapper(chunkStart, chunkSize):
+def process_wrapper(file_name,collection_name,chunkStart, chunkSize):
     """
     wrapper to execute the function outside on the class,
     this trick is required for the module multiprocessing
     to avoid seralization problems  
     """
     global ma_obj 
-    return ma_obj.process_wrapper(chunkStart, chunkSize)
+    return ma_obj.process_wrapper(file_name,collection_name,chunkStart, chunkSize)
 
-def MAMagExecutor(obj,max_threads=None):
+def MAExecutor(obj,file_name,collection_name,max_threads=None):
     """
     Function to call the parallel insertion of data by chunks
     using multiprocessing module.
     Keyword arguments:
-    obj -- Object from class MAMagBase
+    obj -- Object from class MABase
     max_threads -- total number processors to use in parallel
     """
     global ma_obj
@@ -34,8 +34,8 @@ def MAMagExecutor(obj,max_threads=None):
 
     #create jobs
     counter=0
-    for chunkStart,chunkSize in obj.chunkify():
-        jobs.append(pool.apply_async(process_wrapper,[chunkStart,chunkSize]) )
+    for chunkStart,chunkSize in obj.chunkify(file_name):
+        jobs.append(pool.apply_async(process_wrapper,[file_name,collection_name,chunkStart,chunkSize]) )
         counter=counter+1
         #if counter%10==0:
         #    print(counter)
