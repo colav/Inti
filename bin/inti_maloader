@@ -11,6 +11,7 @@ parser.add_argument('--ma_dir',required=True, type=str, help='MA directory with 
 parser.add_argument('--mag', action='store_true', help='Process mag subfolder')
 parser.add_argument('--nlp', action='store_true', help='Process nlp subfolder')
 parser.add_argument('--advanced', action='store_true', help='Process advanced subfolder')
+parser.add_argument('--checkpoint_reset', action='store_true', help='Reset the checkpoint and remove everything')
 parser.add_argument('--all', action='store_true', help='Process all subfolders, mag,nlp and advanced')
 parser.add_argument('--debug', action='store_true', help='Produces a lot of output messages for debug')
 parser.add_argument('--create_indexes', action='store_true', help='Create Indexes for all the collections')
@@ -40,11 +41,11 @@ if args.all:
     use_all=True
 
 if args.mag or use_all:
-    loader.run("mag",create_indexes=args.create_indexes,max_threads=args.max_threads)
+    loader.run("mag",create_indexes=args.create_indexes,max_threads=args.max_threads,checkpoint_reset=args.checkpoint_reset)
 if args.nlp or use_all:
-    loader.run("nlp",create_indexes=args.create_indexes,max_threads=args.max_threads)
+    loader.run("nlp",create_indexes=args.create_indexes,max_threads=args.max_threads,checkpoint_reset=args.checkpoint_reset)
 if args.advanced or use_all:
-    loader.run("advanced",create_indexes=args.create_indexes,max_threads=args.max_threads)
+    loader.run("advanced",create_indexes=args.create_indexes,max_threads=args.max_threads,checkpoint_reset=args.checkpoint_reset)
 
 logging.warning("MA Loader finished! ")
 logging.warning("--------------------------------------------------------\n")

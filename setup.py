@@ -69,7 +69,8 @@ def main():
             'numpy',
             'requests',
             'psutil',
-            'elasticsearch'
+            'elasticsearch',
+            'joblib'
         ],
     )
 

@@ -26,7 +26,7 @@ class MALoader:
         self.log_file = log_file
         self.info_level = info_level
 
-    def run(self,sub_folder,create_indexes=False,max_threads=None):
+    def run(self,sub_folder,create_indexes=False,max_threads=None,checkpoint_reset=False):
         """
         Subfolder can be mag,nlp or advanced
         """
@@ -35,18 +35,21 @@ class MALoader:
             sys.exit(1) 
         if sub_folder == "mag":
             mag = MAMag(self.ma_dir,self.database_name,self.sep,self.buffer_size,self.dburi,self.log_file,self.info_level)
+            mag.checkpoint_create(overwrite=checkpoint_reset)
             if create_indexes:
                 mag.create_indexes(max_threads)
             else:
                 mag.run(max_threads)
         if sub_folder == "nlp":
             nlp = MANlp(self.ma_dir,self.database_name,self.sep,self.buffer_size,self.dburi,self.log_file,self.info_level)
+            nlp.checkpoint_create(overwrite=checkpoint_reset)
             if create_indexes:
                 nlp.create_indexes(max_threads)
             else:
                 nlp.run(max_threads)
         if sub_folder == "advanced":
             advanced = MAAdvanced(self.ma_dir,self.database_name,self.sep,self.buffer_size,self.dburi,self.log_file,self.info_level)
+            advanced.checkpoint_create(overwrite=checkpoint_reset)
             if create_indexes:
                 advanced.create_indexes(max_threads)
             else:

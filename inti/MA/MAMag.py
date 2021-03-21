@@ -71,6 +71,19 @@ class MAMag(MABase):
         """
         Checkpoint not supported!
         """
-        for collection in self.collection_names:
+
+        checkpoint = self.checkpoint_get()
+        collections = []
+        for col in checkpoint["mag"]:
+            if checkpoint["mag"][col] == 0:
+                collections.append(col)
+        self.checkpoint_clean_collections("mag")
+
+        for collection in collections:
             mag_file=self.ma_dir+'mag/{}.txt'.format(collection)
+            print("=== Loading "+mag_file)
             MAExecutor(self,mag_file,collection,max_threads=max_threads)
+            
+            print("=== Updating Ckp "+mag_file)
+            self.checkpoint_update("mag",collection)
+        self.resume("mag")

@@ -8,6 +8,7 @@ import multiprocessing as mp
 import psutil
 
 from inti.MA.MAExecutor import MAExecutor
+from inti.MA.MAMetadata import MACollectionNames
 
 class MABase:
     def __init__(self,ma_dir,db_name,collection_names,sep='\t', buffer_size=1024*1024, dburi='mongodb://localhost:27017/',
@@ -31,6 +32,62 @@ class MABase:
             'ERROR: this method is not implemented yet, it cant be use in the base class')
         sys.exit(1)
         return ""
+
+    def checkpoint_get(self):
+        client = MongoClient(self.dburi)
+        db = client[self.db_name]
+        collection = db["checkpoint"]
+        if collection.count_documents({"_id":0}) == 0:
+            self.checkpoint_create()
+        checkpoint = collection.find_one({'_id':0})
+        client.close()
+        return checkpoint
+
+    def checkpoint_update(self,ma_dir,collection):
+        checkpoint = self.checkpoint_get()
+        checkpoint[ma_dir][collection]=1
+        client = MongoClient(self.dburi)
+        db = client[self.db_name]
+        col = db["checkpoint"]
+        col.update_one({'_id':0},{"$set":checkpoint})
+        client.close()
+
+    def checkpoint_create(self,overwrite=False):
+        client = MongoClient(self.dburi)
+        db = client[self.db_name]
+        collection = db["checkpoint"]
+        if collection.count_documents({"_id":0}) == 0 or overwrite:
+            print("=== Creating CheckPoint")
+            collection.drop()
+            reg = {'_id':0}
+            for ma_dir in list(MACollectionNames.keys()):
+                reg[ma_dir] = {}
+                print(ma_dir)
+                for col in MACollectionNames[ma_dir]:
+                    reg[ma_dir][col]=0
+            collection.insert_one(reg)
+        client.close()
+
+    def resume(self,ma_dir):
+        client = MongoClient(self.dburi)
+        db = client[self.db_name]
+        collection = db["checkpoint"]
+        print("=== Resume ")
+        for col in MACollectionNames[ma_dir]:
+            print("====== {} = {}".format(col,db[col].count_documents({})))
+        client.close()
+
+
+    def checkpoint_clean_collections(self,ma_dir):
+        checkpoint = self.checkpoint_get()
+        client = MongoClient(self.dburi)
+        db = client[self.db_name]
+        del checkpoint['_id']
+        for collection in checkpoint[ma_dir]:
+            if checkpoint[ma_dir][collection] == 0:
+                db[collection].drop()
+        client.close()
+
 
     def create_index(self,collection_name,index):
         self.client = MongoClient(self.dburi)
