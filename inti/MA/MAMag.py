@@ -5,6 +5,7 @@ from joblib import Parallel, delayed
 import logging
 import psutil
 import bson
+import time
 
 class MAMag(MABase):
     def __init__(self,ma_dir,database_name,sep='\t', buffer_size=1024*1024, dburi='mongodb://localhost:27017/',
@@ -69,7 +70,7 @@ class MAMag(MABase):
 
     def run(self,max_threads=None):
         """
-        Checkpoint not supported!
+        Checkpoint supported!
         """
 
         checkpoint = self.checkpoint_get()
@@ -82,8 +83,12 @@ class MAMag(MABase):
         for collection in collections:
             mag_file=self.ma_dir+'mag/{}.txt'.format(collection)
             print("=== Loading "+mag_file)
+            start = time.time()
             MAExecutor(self,mag_file,collection,max_threads=max_threads)
-            
+            end = time.time()
+            hours, rem = divmod(end-start, 3600)
+            minutes, seconds = divmod(rem, 60)
+            print("=== {:0>2}h:{:0>2}m:{:05.2f}s".format(int(hours),int(minutes),seconds))
             print("=== Updating Ckp "+mag_file)
             self.checkpoint_update("mag",collection)
         self.resume("mag")

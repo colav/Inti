@@ -7,6 +7,8 @@ import psutil
 import bson
 import glob
 import json
+import time
+
 
 class MANlp(MABase):
     def __init__(self,ma_dir,database_name,sep='\t', buffer_size=1024*1024, dburi='mongodb://localhost:27017/',
@@ -66,12 +68,36 @@ class MANlp(MABase):
         """
         Checkpoint not supported!
         """
+        checkpoint = self.checkpoint_get()
+        collections = []
+        for col in checkpoint["nlp"]:
+            if checkpoint["nlp"][col] == 0:
+                collections.append(col)
+        self.checkpoint_clean_collections("nlp")
 
-        for collection in self.collection_names:
+
+        for collection in collections:
             if collection == "PaperAbstractsInvertedIndex":
                 nlp_files = glob.glob(self.ma_dir+'nlp/PaperAbstractsInvertedIndex.txt.*')
                 for nlp_file in nlp_files:
+                    print("=== Loading "+nlp_file)
+                    start = time.time()
                     MAExecutor(self,nlp_file,"PaperAbstractsInvertedIndex",max_threads=max_threads)
+                    end = time.time()
+                    hours, rem = divmod(end-start, 3600)
+                    minutes, seconds = divmod(rem, 60)
+                    print("=== {:0>2}h:{:0>2}m:{:05.2f}s".format(int(hours),int(minutes),seconds))
+                print("=== Updating Ckp {}".format(nlp_files))
+                self.checkpoint_update("nlp",collection)
+
             else:
                 nlp_file=self.ma_dir+'nlp/{}.txt'.format(collection)
+                print("=== Loading "+nlp_file)
+                start = time.time()
                 MAExecutor(self,nlp_file,collection,max_threads=max_threads)
+                end = time.time()
+                hours, rem = divmod(end-start, 3600)
+                minutes, seconds = divmod(rem, 60)
+                print("=== {:0>2}h:{:0>2}m:{:05.2f}s".format(int(hours),int(minutes),seconds))
+                print("=== Updating Ckp "+nlp_file)
+                self.checkpoint_update("nlp",collection)

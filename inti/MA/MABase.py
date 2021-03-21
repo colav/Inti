@@ -62,7 +62,6 @@ class MABase:
             reg = {'_id':0}
             for ma_dir in list(MACollectionNames.keys()):
                 reg[ma_dir] = {}
-                print(ma_dir)
                 for col in MACollectionNames[ma_dir]:
                     reg[ma_dir][col]=0
             collection.insert_one(reg)
