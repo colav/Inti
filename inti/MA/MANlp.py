@@ -66,7 +66,7 @@ class MANlp(MABase):
 
     def run(self,max_threads=None):
         """
-        Checkpoint not supported!
+        Checkpoint supported!
         """
         checkpoint = self.checkpoint_get()
         collections = []
@@ -101,3 +101,4 @@ class MANlp(MABase):
                 print("=== {:0>2}h:{:0>2}m:{:05.2f}s".format(int(hours),int(minutes),seconds))
                 print("=== Updating Ckp "+nlp_file)
                 self.checkpoint_update("nlp",collection)
+        self.resume("nlp")

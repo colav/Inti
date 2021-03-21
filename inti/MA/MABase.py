@@ -126,7 +126,12 @@ class MABase:
                 line = self.process(collection_name,line)
                 if line is not None:
                     processed_lines.append(line)
-            self.collection.insert_many(processed_lines,ordered=False)
+            if len(processed_lines) > 0:
+                self.collection.insert_many(processed_lines,ordered=False)
+            # try:
+            #     self.collection.insert_many(processed_lines,ordered=False)
+            # except:
+            #     print(lines)
         self.client.close()
 
     def chunkify(self,file_name):

@@ -5,6 +5,7 @@ from joblib import Parallel, delayed
 import logging
 import psutil
 import bson
+import time
 
 class MAAdvanced(MABase):
     def __init__(self,ma_dir,database_name,sep='\t', buffer_size=1024*1024, dburi='mongodb://localhost:27017/',
@@ -72,8 +73,24 @@ class MAAdvanced(MABase):
 
     def run(self,max_threads=None):
         """
-        Checkpoint not supported!
+        Checkpoint supported!
         """
-        for collection in self.collection_names:
+        checkpoint = self.checkpoint_get()
+        collections = []
+        for col in checkpoint["advanced"]:
+            if checkpoint["advanced"][col] == 0:
+                collections.append(col)
+        self.checkpoint_clean_collections("advanced")
+
+        for collection in collections:
             advanced_file=self.ma_dir+'advanced/{}.txt'.format(collection)
+            print("=== Loading "+advanced_file)
+            start = time.time()
             MAExecutor(self,advanced_file,collection,max_threads=max_threads)
+            end = time.time()
+            hours, rem = divmod(end-start, 3600)
+            minutes, seconds = divmod(rem, 60)
+            print("=== {:0>2}h:{:0>2}m:{:05.2f}s".format(int(hours),int(minutes),seconds))
+            print("=== Updating Ckp "+advanced_file)
+            self.checkpoint_update("advanced",collection)
+        self.resume("advanced")            
