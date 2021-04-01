@@ -48,21 +48,25 @@ class MANlp(MABase):
                 inviabs = json.loads(register["IndexedAbstract"])
                 abstract_text = self.inv_index2text(inviabs)
                 register["Abstract"] = abstract_text
+                del register["IndexedAbstract"]
+                
             return register
         else:
             pass
 
     def create_indexes(self,max_threads=None):
-        indexes = []
+        indexes = {}
+
         for collection_name in self.collection_names:
+            indexes[collection_name] = []
             col_indexes = MAColumnNames["nlp"]['{}_indexes'.format(collection_name)]
             for index in col_indexes:
-                 indexes.append((collection_name,index))
+                  indexes[collection_name].append(index)
         if max_threads is None:
             jobs = psutil.cpu_count()
         else:
             jobs = max_threads        
-        Parallel(n_jobs=jobs)(delayed(self.create_index)(collection_name,index) for collection_name,index in indexes)
+        Parallel(n_jobs=jobs)(delayed(self.create_index)(collection_name,index) for collection_name,index in indexes.items())
 
     def run(self,max_threads=None):
         """

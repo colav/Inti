@@ -6,6 +6,7 @@ import os,sys
 import logging
 import multiprocessing as mp
 import psutil
+import time
 
 from inti.MA.MAExecutor import MAExecutor
 from inti.MA.MAMetadata import MACollectionNames
@@ -92,9 +93,15 @@ class MABase:
         self.client = MongoClient(self.dburi)
         self.db = self.client[self.db_name]
         self.collection = self.db[collection_name]
-        print('Creating index {} = {}'.format(collection_name,index))
+        print('=== Creating index {} = {}'.format(collection_name,index))
+        start = time.time()
         self.collection.create_index(index)
+        end = time.time()
+        hours, rem = divmod(end-start, 3600)
+        minutes, seconds = divmod(rem, 60)
+        print("====== Index {} ({}) \n======time {:0>2}h:{:0>2}m:{:05.2f}s".format(collection_name,index,int(hours),int(minutes),seconds))
         self.client.close()
+        
 
     def create_indexes(self,max_threads=None):
         '''

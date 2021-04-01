@@ -34,7 +34,7 @@ loader=MALoader(ma_dir=args.ma_dir,database_name=args.db,dburi=dburi,info_level=
 logging.warning("--------------------------------------------------------\n")
 logging.warning("Starting MA Loader ")
 #if args.create_indexes:
-    #loader.create_indexes(max_threads=args.max_threads)
+#    loader.create_indexes(max_threads=args.max_threads)
 #else:
 use_all=False
 if args.all:
@@ -46,6 +46,9 @@ if args.nlp or use_all:
     loader.run("nlp",create_indexes=args.create_indexes,max_threads=args.max_threads,checkpoint_reset=args.checkpoint_reset)
 if args.advanced or use_all:
     loader.run("advanced",create_indexes=args.create_indexes,max_threads=args.max_threads,checkpoint_reset=args.checkpoint_reset)
+
+if not args.mag and not args.nlp and not args.advanced and not args.all:
+    print("Error: Please select --mag or --nlp or --advanced or --all to select the subfolder.")
 
 logging.warning("MA Loader finished! ")
 logging.warning("--------------------------------------------------------\n")

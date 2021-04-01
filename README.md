@@ -51,6 +51,17 @@ thread_pool.get.queue_size: 10000
 thread_pool.write.queue_size: 10000
 `
 
+# MongoDB optimizations
+increase the index creation memory to 6G of RAM to improve the performance(use this with caution)
+`
+db.adminCommand({getParameter: 1, maxIndexBuildMemoryUsageMegabytes: 1})
+db.adminCommand({setParameter: 1, maxIndexBuildMemoryUsageMegabytes: 6144})
+`
+
+## Final notes
+Be aware that running this package, mongodb producess a huge amount of informtation in the logs,
+please clean the file /var/log/mongodb.log (it could be more that 65G)
+
 **This is required to perform massive insertions in parallel!**
 
 # License
