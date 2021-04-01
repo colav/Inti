@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from inti.MA.MAESLoader import MAESLoader
-from inti.MA.MAMagBase import MAMagColNames
+from inti.MA.MAMetadata import MAColumnNames
 from elasticsearch import Elasticsearch
 
 import argparse
@@ -40,7 +40,7 @@ timeout = args.timeout
 max_threads = args.max_threads
 
 mag_file = mag_dir+'/{}.txt'.format(col_name)
-col_names = MAMagColNames[col_name]
+col_names = MAColumnNames["mag"][col_name]
 
 es = Elasticsearch(HOST=db_ip, PORT=db_port,timeout=timeout)
 if args.reset_index:

@@ -7,9 +7,9 @@ import psutil
 
 from elasticsearch import Elasticsearch, helpers
 
-from inti.MA.MAMagExecutor import MAMagExecutor
+from inti.MA.MAExecutor import MAExecutor
 
-from inti.MA.MAMagBase import MAMagColNames
+from inti.MA.MAMetadata import MAColumnNames
 
 class MAESLoader:
     def __init__(self,file_name,index_name,field_name,col_names,sep='\t', buffer_size=1024*1024, db_ip='127.0.0.1',db_port=9200,timeout=120,log_file='maesbase.log', info_level=logging.DEBUG):
@@ -51,7 +51,7 @@ class MAESLoader:
             logging.basicConfig(filename=self.log_file, level=info_level)
         self.info_level = info_level
 
-    def process_wrapper(self,chunkStart, chunkSize):
+    def process_wrapper(self,file_name,index_name,chunkStart, chunkSize):
         es = Elasticsearch(HOST=self.db_ip, PORT=self.db_port,timeout=self.timeout)
         
         with open(self.file_name,'rb') as f:
@@ -72,7 +72,7 @@ class MAESLoader:
             # This can happen if the server is restarted or the connection becomes unavilable
             print(str(e))
 
-    def chunkify(self):
+    def chunkify(self,file_name):
         fileEnd = os.path.getsize(self.file_name)
         with open(self.file_name,'rb') as f:
             chunkEnd = f.tell()
@@ -87,11 +87,11 @@ class MAESLoader:
 
 
     def run(self,max_threads=None):
-        MAMagExecutor(self,max_threads=max_threads)
+        MAExecutor(self,self.field_name,self.index_name,max_threads=max_threads)
 
 def run(mag_dir,col_name,index_name,field_name,sep='\t', buffer_size=1024*1024, db_ip='127.0.0.1',db_port=9200,timeout=120,max_threads=None):
     mag_file = mag_dir+'/{}.txt'.format(col_name)
-    col_names = MAMagColNames[col_name]
+    col_names = MAColumnNames["mag"][col_name]
 
     instance = MAESLoader(mag_file,index_name,field_name,col_names,sep, buffer_size, db_ip,db_port,timeout)
     instance.run(max_threads=max_threads)
