@@ -10,7 +10,7 @@ def process_wrapper(file_name, collection_name, chunkStart, chunkSize):
     """
     wrapper to execute the function outside on the class,
     this trick is required for the module multiprocessing
-    to avoid seralization problems
+    to avoid serialization problems
     """
     global ma_obj
     return ma_obj.process_wrapper(
