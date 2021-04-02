@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+from inti.MA.MALoader import MALoader
+
+import argparse
+import logging
+
+parser = argparse.ArgumentParser(description='Process papers with GSLookUp.')
+parser.add_argument('--max_threads', type=int,default=None, help='an integer for number of threads')
+parser.add_argument('--db',required=True, type=str, help='database name to read the data collection (ex: udea,redalyc)')
+parser.add_argument('--ma_dir',required=True, type=str, help='MA directory with the txt files wiht the data (ex: /storage/MA/) with subfolder mag,nlp,advanced')
+parser.add_argument('--mag', action='store_true', help='Process mag subfolder')
+parser.add_argument('--nlp', action='store_true', help='Process nlp subfolder')
+parser.add_argument('--advanced', action='store_true', help='Process advanced subfolder')
+parser.add_argument('--checkpoint_reset', action='store_true', help='Reset the checkpoint and remove everything')
+parser.add_argument('--all', action='store_true', help='Process all subfolders, mag,nlp and advanced')
+parser.add_argument('--debug', action='store_true', help='Produces a lot of output messages for debug')
+parser.add_argument('--create_indexes', action='store_true', help='Create Indexes for all the collections')
+parser.add_argument('--db_ip', type=str, default='localhost',
+                    help='mongodb ip (default localhost)')
+parser.add_argument('--db_port', type=int, default=27017,
+                    help='mongodb port (default 27017)')
+
+args = parser.parse_args()
+
+level=logging.INFO
+if args.debug:
+    level=logging.DEBUG
+
+dburi='mongodb://{}:{}/'.format(args.db_ip,args.db_port)
+
+loader=MALoader(ma_dir=args.ma_dir,database_name=args.db,dburi=dburi,info_level=level)
+
+
+logging.warning("--------------------------------------------------------\n")
+logging.warning("Starting MA Loader ")
+#if args.create_indexes:
+#    loader.create_indexes(max_threads=args.max_threads)
+#else:
+use_all=False
+if args.all:
+    use_all=True
+
+if args.mag or use_all:
+    loader.run("mag",create_indexes=args.create_indexes,max_threads=args.max_threads,checkpoint_reset=args.checkpoint_reset)
+if args.nlp or use_all:
+    loader.run("nlp",create_indexes=args.create_indexes,max_threads=args.max_threads,checkpoint_reset=args.checkpoint_reset)
+if args.advanced or use_all:
+    loader.run("advanced",create_indexes=args.create_indexes,max_threads=args.max_threads,checkpoint_reset=args.checkpoint_reset)
+
+if not args.mag and not args.nlp and not args.advanced and not args.all:
+    print("Error: Please select --mag or --nlp or --advanced or --all to select the subfolder.")
+
+logging.warning("MA Loader finished! ")
+logging.warning("--------------------------------------------------------\n")
