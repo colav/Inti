@@ -47,7 +47,7 @@ class MABase:
 
     def process(self, collection_name, line):
         '''
-        To be implemented by childrens
+        To be implemented by children
         '''
         self.logger.error(
             'ERROR: this method is not implemented yet, it cant be use in the base class')

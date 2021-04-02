@@ -11,6 +11,35 @@ from inti.MA.MAMetadata import MAColumnNames
 class MAESLoader:
     def __init__(self, file_name, index_name, field_name, col_names, sep='\t', buffer_size=1024 * 1024,
                  db_ip='127.0.0.1', db_port=9200, timeout=120, log_file='maesbase.log', info_level=logging.DEBUG):
+        '''
+        Class to load a field from a Microsoft Academic file on Elastic Search database,
+
+        Parameter:
+            file_name: string
+                name of the file to load, ex: .../mag/Papers.txt
+            index_name:string
+                database name (index) on for Elastic Search
+            filed_name: string
+                Name of the field for the index, ex: PaperTitle
+            col_names: dict
+                name of the columns for the given file.
+                Object provide for Inti.MA.Metadata.MAColumnNames
+            sep: string
+                separator for the *.txt files, the default one is '\t'
+            buffer_size: int
+                parameter that specifies the size of the buffer for every process,
+                while the text files are loaded on RAM before insert if on MongoDB
+            db_ip: string
+                database ip for connection to Elastic Search
+            db_port: int
+                database port for connection to Elastic Search
+            timeout: int
+                timeout for persistent connection to Elastic Search
+            log_file:string
+                file log name
+            info_level: logging flag
+                the default at the moment is DEBUG
+        '''
         self.file_name = file_name
         self.buffer_size = buffer_size
         self.info_level = info_level
@@ -26,6 +55,16 @@ class MAESLoader:
         self.index_name = index_name
 
     def process(self, line):
+        '''
+        Process the line, adding the metadata to create a dictionary
+
+        Parameters:
+            line:string
+                line from the MA file with the data values.
+        Returns:
+            register:dict
+                dictionary with the information on  the metadata and values.
+        '''
         register = {}
         if isinstance(line, type(bytes())):
             line = line.decode('utf-8')
@@ -49,6 +88,19 @@ class MAESLoader:
         self.info_level = info_level
 
     def process_wrapper(self, file_name, index_name, chunkStart, chunkSize):
+        '''
+        Allows to insert the content of the file in the Elastic Search
+
+        Parameters:
+        file_name:string
+            name of the file, ex: ...mag/Papers.txt
+        index_name:string
+            name of the database(index) on Elastic Search ex: MAG
+        chunkStart:int
+            starting point to read the file
+        chunkSize:int
+            size of the chunk from the starting point
+        '''
         es = Elasticsearch(
             HOST=self.db_ip,
             PORT=self.db_port,
@@ -77,6 +129,19 @@ class MAESLoader:
             print(str(e))
 
     def chunkify(self, file_name):
+        '''
+        Allows to split the file chunks, according to the buffer_size provided in the constructor
+
+        Parameter:
+            file_name: string
+                filename to be splitted ex: ../mag/Papers.txt
+        Returns:
+            chunkStart: int
+                starting point to read the file
+            checkSize: int
+                size of the buffer from the starting point.
+                this is because we need to be sure we are reading the whole line until end of line.
+        '''
         fileEnd = os.path.getsize(self.file_name)
         with open(self.file_name, 'rb') as f:
             chunkEnd = f.tell()
@@ -90,6 +155,9 @@ class MAESLoader:
                     break
 
     def run(self, max_threads=None):
+        '''
+        Calls the executor to run in parallel.
+        '''
         MAExecutor(
             self,
             self.field_name,
@@ -99,6 +167,9 @@ class MAESLoader:
 
 def run(mag_dir, col_name, index_name, field_name, sep='\t', buffer_size=1024 * 1024,
         db_ip='127.0.0.1', db_port=9200, timeout=120, max_threads=None):
+    '''
+    Calls the executor to run in parallel.
+    '''
     mag_file = mag_dir + '/{}.txt'.format(col_name)
     col_names = MAColumnNames["mag"][col_name]
 
