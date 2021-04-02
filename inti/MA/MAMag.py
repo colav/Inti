@@ -1,4 +1,4 @@
-from inti.MA.MAMetadata import MAColTypes, MAColumnNames, MACollectionNames 
+from inti.MA.MAMetadata import MAColTypes, MAColumnNames, MACollectionNames
 from inti.MA.MABase import MABase
 from inti.MA.MAExecutor import MAExecutor
 from joblib import Parallel, delayed
@@ -7,8 +7,9 @@ import psutil
 import bson
 import time
 
+
 class MAMag(MABase):
-    def __init__(self,ma_dir,database_name,sep='\t', buffer_size=1024*1024, dburi='mongodb://localhost:27017/',
+    def __init__(self, ma_dir, database_name, sep='\t', buffer_size=1024 * 1024, dburi='mongodb://localhost:27017/',
                  log_file='mamagbase.log', info_level=logging.DEBUG):
         """
         The directory should have the next files
@@ -24,13 +25,13 @@ class MAMag(MABase):
         mag/PaperExtendedAttributes.txt
         mag/Journals.txt
         """
-        super().__init__(ma_dir,database_name,MACollectionNames["mag"],sep, buffer_size, dburi,
-                 log_file, info_level)
+        super().__init__(ma_dir, database_name, MACollectionNames["mag"], sep, buffer_size, dburi,
+                         log_file, info_level)
 
-    def process(self,collection_name,line):
-        register={}
+    def process(self, collection_name, line):
+        register = {}
         col_names = MAColumnNames["mag"][collection_name]
-        if type(line) == type(bytes()):
+        if isinstance(line, type(bytes())):
             line = line.decode('utf-8')
         fields = line.split(self.sep)
         if len(fields) == len(col_names):
@@ -39,38 +40,45 @@ class MAMag(MABase):
                 if col_name in MAColTypes["mag"]["long"]:
                     value = fields[index].strip()
                     if value == "":
-                        value=0                        
-                    register[col_name]=bson.int64.Int64(value)
+                        value = 0
+                    register[col_name] = bson.int64.Int64(value)
                 elif col_name in MAColTypes["mag"]["int"]:
                     if value == "":
-                        value=0                        
-                    register[col_name]=bson.int64.Int64(value)
+                        value = 0
+                    register[col_name] = bson.int64.Int64(value)
                 elif col_name in MAColTypes["mag"]["float"]:
                     if value == "":
-                        value=0.0                        
-                    register[col_name]=float(value)
+                        value = 0.0
+                    register[col_name] = float(value)
                 else:
-                    register[col_names[index]]=fields[index]
-                
+                    register[col_names[index]] = fields[index]
+
             return register
         else:
             pass
 
-    def create_indexes(self,max_threads=None):
+    def create_indexes(self, max_threads=None):
         indexes = {}
 
         for collection_name in self.collection_names:
             indexes[collection_name] = []
-            col_indexes = MAColumnNames["mag"]['{}_indexes'.format(collection_name)]
+            col_indexes = MAColumnNames["mag"]['{}_indexes'.format(
+                collection_name)]
             for index in col_indexes:
                 indexes[collection_name].append(index)
         if max_threads is None:
             jobs = psutil.cpu_count()
         else:
-            jobs = max_threads        
-        Parallel(n_jobs=jobs)(delayed(self.create_index)(collection_name,index) for collection_name,index in indexes.items())
+            jobs = max_threads
+        Parallel(
+            n_jobs=jobs)(
+            delayed(
+                self.create_index)(
+                collection_name,
+                index) for collection_name,
+            index in indexes.items())
 
-    def run(self,max_threads=None):
+    def run(self, max_threads=None):
         """
         Checkpoint supported!
         """
@@ -83,14 +91,18 @@ class MAMag(MABase):
         self.checkpoint_clean_collections("mag")
 
         for collection in collections:
-            mag_file=self.ma_dir+'mag/{}.txt'.format(collection)
-            print("=== Loading "+mag_file)
+            mag_file = self.ma_dir + 'mag/{}.txt'.format(collection)
+            print("=== Loading " + mag_file)
             start = time.time()
-            MAExecutor(self,mag_file,collection,max_threads=max_threads)
+            MAExecutor(self, mag_file, collection, max_threads=max_threads)
             end = time.time()
-            hours, rem = divmod(end-start, 3600)
+            hours, rem = divmod(end - start, 3600)
             minutes, seconds = divmod(rem, 60)
-            print("=== {:0>2}h:{:0>2}m:{:05.2f}s".format(int(hours),int(minutes),seconds))
-            print("=== Updating Ckp "+mag_file)
-            self.checkpoint_update("mag",collection)
+            print(
+                "=== {:0>2}h:{:0>2}m:{:05.2f}s".format(
+                    int(hours),
+                    int(minutes),
+                    seconds))
+            print("=== Updating Ckp " + mag_file)
+            self.checkpoint_update("mag", collection)
         self.resume("mag")
