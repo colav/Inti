@@ -12,16 +12,44 @@ import time
 
 class MANlp(MABase):
     def __init__(self, ma_dir, database_name, sep='\t', buffer_size=1024 * 1024, dburi='mongodb://localhost:27017/',
-                 log_file='manlbase.log', info_level=logging.DEBUG):
+                 log_file='manlpbase.log', info_level=logging.DEBUG):
         """
+        Class to parse nlp subsolder on Microsoft Academic dataset.
+
         The directory should have the next files
         nlp/PaperAbstractsInvertedIndex.txt.*
         nlp/PaperCitationContexts.txt
+
+        Parameters:
+        ma_dir: string
+            path to MA directory dataset, with the 3 folders mag/nlp and advanced
+        db_name:string
+            database name on for MongoDB
+        sep: string
+            separator for the *.txt files, the default one is '\t'
+        buffer_size: int
+            parameter that specifies the size of the buffer for every process,
+            while the text files are loaded on RAM before insert if on MongoDB
+        dburi: string
+            database uri for connection
+        log_file:string
+            file log name
+        info_level: logging flag
+            the default at the moment is DEBUG
+
         """
         super().__init__(ma_dir, database_name, MACollectionNames["nlp"], sep, buffer_size, dburi,
                          log_file, info_level)
 
     def inv_index2text(self, data):
+        '''
+        Transfor inverted index text to plain text
+
+        Parameter:
+            data: dictionary with the inverted text
+        Return:
+            plain text abstract
+        '''
         abstract = [""] * data['IndexLength']
         for key in data["InvertedIndex"]:
             for i in data["InvertedIndex"][key]:
@@ -29,6 +57,16 @@ class MANlp(MABase):
         return " ".join(abstract)
 
     def process(self, collection_name, line):
+        '''
+        Process the line, adding the metadata to create a dictionary
+
+        Parameters:
+            line:string
+                line from the MA file with the data values.
+        Returns:
+            register:dict
+                dictionary with the information on  the metadata and values.
+        '''
         register = {}
         col_names = MAColumnNames["nlp"][collection_name]
         if isinstance(line, type(bytes())):
@@ -55,6 +93,9 @@ class MANlp(MABase):
             pass
 
     def create_indexes(self, max_threads=None):
+        '''
+        Method to create indexes in parallel.
+        '''
         indexes = {}
 
         for collection_name in self.collection_names:

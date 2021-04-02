@@ -42,8 +42,6 @@ class MAMag(MABase):
             file log name
         info_level: logging flag
             the default at the moment is DEBUG
-
-
         """
         super().__init__(ma_dir, database_name, MACollectionNames["mag"], sep, buffer_size, dburi,
                          log_file, info_level)
