@@ -41,11 +41,13 @@ ok" : 0,
 `
 
 you need to start the server with the option
+
 `
 mongod --setParameter maxSessions=10000000 --config /etc/mongodb.conf
 `
 # ElasticSearch Options requirement
 in the file /etc/elasticsearch/elasticsearch.yml add
+
 `
 thread_pool.get.queue_size: 10000
 thread_pool.write.queue_size: 10000
@@ -53,10 +55,12 @@ thread_pool.write.queue_size: 10000
 
 ## ElasticSearch disk options
 With low disk space, this error can appear 
+`
+('1 document(s) failed to index.', [{'index': {'_index': 'mag', '_type': '_doc', '_id': '9915517', 'status': 429, 'error': {'type': 'cluster_block_exception', 'reason': 'index [mag] blocked by: [TOO_MANY_REQUESTS/12/disk usage exceeded flood-stage watermark, index has read-only-allow-delete block];'}, 'data': {'PaperTitle': '...'}}}])
+`
 
-"('1 document(s) failed to index.', [{'index': {'_index': 'mag', '_type': '_doc', '_id': '9915517', 'status': 429, 'error': {'type': 'cluster_block_exception', 'reason': 'index [mag] blocked by: [TOO_MANY_REQUESTS/12/disk usage exceeded flood-stage watermark, index has read-only-allow-delete block];'}, 'data': {'PaperTitle': '...'}}}])
-"
 solver it with this.
+
 `
 curl -XPUT -H "Content-Type: application/json" http://localhost:9200/_cluster/settings -d '{ "transient": { "cluster.routing.allocation.disk.threshold_enabled": false } }'
 curl -XPUT -H "Content-Type: application/json" http://localhost:9200/_all/_settings -d '{"index.blocks.read_only_allow_delete": null}'
