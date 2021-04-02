@@ -37,7 +37,7 @@ def main():
         name="Inti",
 
         # Version number (initial):
-        version="0.0.1-pre",
+        version="0.0.0-alpha0",
 
         # Application author details:
         author="Colav",
