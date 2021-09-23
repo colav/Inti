@@ -23,8 +23,9 @@ This allows too, create indexes for ElasticSearch database to perform search usi
 # Usage
 ## Exaple running save MAG in MongoDB
 `
-inti_mamagloader --mag_dir=/storage/colav/mag_sample/ --db=MA
+inti_maloader --ma_dir=/storage/colav/mag_sample/ --db=MA --all
 `
+
 ## Exaple running save MAG in ElasticSearch
 `
  inti_maesloader --mag_dir=/home/colav/mag/ --col_name=Papers --field_name=PaperTitle --index_name=mag 
