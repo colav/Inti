@@ -127,6 +127,7 @@ class MAESLoader:
             # This can happen if the server is restarted or the connection
             # becomes unavilable
             print(str(e))
+        es.close()
 
     def chunkify(self, file_name):
         '''
