@@ -8,6 +8,9 @@ Package to download data and process datasets, not related to scrapping, like Mi
 For MAG, this package allows to download the data from azure and in parallel, dumps the data to MongDB collections.
 This allows too, create indexes for ElasticSearch database to perform search using the title of the document.
 
+# Azure account
+https://docs.microsoft.com/en-us/academic-services/graph/get-started-setup-provisioning
+
 # Installation
 
 ## Dependencies
