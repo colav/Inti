@@ -151,7 +151,8 @@ class MABase:
         self.collection = self.db[collection_name]
         print('=== Creating index {} = {}'.format(collection_name, index))
         start = time.time()
-        self.collection.create_index(index)
+        for i in index:
+            self.collection.create_index([i])
         end = time.time()
         hours, rem = divmod(end - start, 3600)
         minutes, seconds = divmod(rem, 60)
